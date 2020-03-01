@@ -27,6 +27,7 @@ function showMoves() {
       number: +this.number
     });
   }
+  // FIXME: Isso é uma verificação se existe uma peça no lugar e se é do adversário, faz isso de uma forma que de pra reaproveitar
   if (
     this.field[nextLine][this.number - 1].component &&
     this.field[nextLine][this.number - 1].isDark !== this.isDark
