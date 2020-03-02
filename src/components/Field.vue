@@ -4,11 +4,17 @@
       <div
         v-for="(block, blockIndex) in lines"
         :key="blockIndex"
-        :class="(block.active ? 'active ' : '') + 'field-line-block'"
-        @click="onClick(block.active, linesIndex, blockIndex)"
+        class="field-line-block"
       >
+        <active-block
+          v-if="block.active"
+          :char="linesIndex"
+          :number="blockIndex"
+          :clickedPiece="clickedPiece"
+          @movePiece="movePiece"
+        />
         <component
-          v-if="block.component"
+          v-else-if="block.component"
           :char="linesIndex"
           :number="blockIndex"
           :isDark="block.isDark"
@@ -17,7 +23,7 @@
           :active="block.active"
           @showMoves="showMoves"
         />
-        <span v-else>ok</span>
+        <span v-else>{{ linesIndex }}{{ blockIndex }}</span>
       </div>
     </div>
   </div>
@@ -25,11 +31,13 @@
 
 <script>
 import Pawn from '@/components/Pieces/Pawn.js';
+import ActiveBlock from '@/components/ActiveBlock.vue';
 import { numberDimension, charDimension } from '@/constants';
 
 export default {
   components: {
-    Pawn
+    Pawn,
+    ActiveBlock
   },
   data: () => ({
     field: [],
@@ -39,6 +47,12 @@ export default {
     this.initialize();
   },
   methods: {
+    getBlock({ char, number }) {
+      return this.field[char][number];
+    },
+    setBlock({ char, number }, value) {
+      this.field[char][number] = value;
+    },
     onClick(active, char, number) {
       if (active) {
         this.movePiece(this.clickedPiece, { char, number });
@@ -46,34 +60,30 @@ export default {
     },
     movePiece(from, to) {
       if ((from.char !== to.char) || (from.number !== to.number)) {
-        if (this.field[to.char][to.number].component) {
-          if (
-            this.field[to.char][to.number].component.isDark
-            === this.field[from.char][from.number].component.isDark
-          ) {
+        let toBlock = this.getBlock(to);
+        let fromBlock = this.getBlock(from);
+        if (toBlock.component) {
+          if (toBlock.isDark === fromBlock.isDark) {
             throw new Error('It\'s not possible to kill your piece');
           }
-          this.$emit('killPiece', this.field[to.char][to.number]);
+          this.cleanBlock(to);
+          this.$emit('killPiece', toBlock);
         }
-        // FIXME: REFACTOR THIS
-        let tempField = JSON.parse(JSON.stringify(this.field[to.char][to.number]));
-        this.field[to.char][to.number] = this.field[from.char][from.number];
-        this.field[from.char][from.number] = tempField;
-        // FIXME: Find a better way to active vue reactive
-        this.field = JSON.parse(JSON.stringify(this.field));
+        this.setBlock(to, fromBlock);
+        this.cleanBlock({ char: from.char, number: from.number });
+        this.$forceUpdate()
         this.hideMoves()
       }
     },
-    showMoves(piece, fields) {
+    showMoves(event) {
       this.hideMoves();
-      this.clickedPiece = piece;
-      fields.forEach((field) => {
+      this.clickedPiece = event.piece;
+      event.moves.forEach((field) => {
         if (this.field[field.char][field.number]) {
           this.field[field.char][field.number].active = true;
         }
       })
-      // FIXME: Find a better way to active vue reactive
-      this.field = JSON.parse(JSON.stringify(this.field));
+      this.$forceUpdate()
     },
     hideMoves() {
       charDimension.forEach((char) => {
@@ -82,8 +92,7 @@ export default {
         });
       });
       this.clickedPiece = null;
-      // FIXME: Find a better way to active vue reactive
-      this.field = JSON.parse(JSON.stringify(this.field));
+      this.$forceUpdate()
     },
     initialize() {
       this.cleanField();
@@ -94,11 +103,14 @@ export default {
       charDimension.forEach((char) => {
         this.field[char] = {};
         numberDimension.forEach((number) => {
-          this.field[char][number] = {
-            component: null,
-            active: false
-          };
+          this.cleanBlock({ char, number });
         });
+      });
+    },
+    cleanBlock({ char, number }) {
+      this.setBlock({ char, number }, {
+        component: null,
+        active: false
       });
     },
     setUpField() {

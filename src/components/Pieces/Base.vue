@@ -6,9 +6,11 @@
 
 <script>
 export default {
-  data: () => ({
-    sourceImg: null,
-  }),
+  computed: {
+    sourceImg () {
+      return null;
+    }
+  },
   props: {
     isDark: {
       type: Boolean,
@@ -23,6 +25,9 @@ export default {
     showMoves() {
       this.$emit('showMoves');
     },
+    getBlock() {
+      return { char: this.char, number: this.number };
+    }
   },
 };
 </script>
