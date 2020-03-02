@@ -1,4 +1,4 @@
-import { blockState } from '@/constants.js';
+import { blockState, charDimension } from '@/constants.js';
 
 const verifyBlockState = function (block, piece) {
   if (!block) {
@@ -13,4 +13,13 @@ const verifyBlockState = function (block, piece) {
   }
 };
 
-export { verifyBlockState }
+function getIndexChar(char) {
+  for (let i = 0; i < charDimension.length; i++) {
+    if (char == charDimension[i]) {
+      return i;
+    }
+  }
+  return null;
+}
+
+export { verifyBlockState, getIndexChar }

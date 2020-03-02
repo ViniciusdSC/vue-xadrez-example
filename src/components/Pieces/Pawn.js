@@ -1,77 +1,41 @@
 import Base from './Base.vue';
-import { charDimension, blockState } from '@/constants.js';
+import { blockState } from '@/constants.js';
 import { verifyBlockState } from '@/helpers/fieldHelpers.js';
 
-function getIndexChar(char) {
-  for (let i = 0; i < charDimension.length; i++) {
-    if (char == charDimension[i]) {
-      return i;
+export default {
+  extends: Base,
+  methods: {
+    showMoves() {
+      let moves = [];
+      let sign = this.isDark ? 1 : -1;
+      let moveFrontOne = this.getMove({ char: sign, number: 0 });
+      let moveFrontTwo = this.getMove({ char: (2 * sign), number: 0 });
+      let moveFrontOneLeftOne = this.getMove({ char: sign, number: -1 });
+      let moveFrontOneRightOne = this.getMove({ char: sign, number: 1 });
+      if (verifyBlockState(this.getFieldBlock(moveFrontOne), this) === blockState.blank) {
+        moves.push(moveFrontOne);
+        if (
+          ((this.getBlock().char === 'B' && this.isDark) ||
+          (this.getBlock().char === 'G' && !this.isDark)) &&
+          verifyBlockState(this.getFieldBlock(moveFrontTwo), this) === blockState.blank
+        ) {
+          moves.push(moveFrontTwo);
+        }
+      }
+      if (verifyBlockState(this.getFieldBlock(moveFrontOneLeftOne), this) === blockState.enemy) {
+        moves.push(moveFrontOneLeftOne);
+      }
+      if (verifyBlockState(this.getFieldBlock(moveFrontOneRightOne), this) === blockState.enemy) {
+        moves.push(moveFrontOneRightOne);
+      }
+      this.$emit('showMoves', { char: this.char, number: this.number, moves, piece: this })
+    }
+  },
+  computed: {
+    sourceImg() {
+      return this.isDark
+        ? require('@/assets/pawn-black.png')
+        : require('@/assets/pawn-white.png');
     }
   }
-  return null;
 }
-
-function sourceImg() {
-  return this.isDark
-    ? require('@/assets/pawn-black.png')
-    : require('@/assets/pawn-white.png');
-}
-
-function showMoves() {
-  let moves = [];
-  let nextLine = this.isDark
-    ? charDimension[getIndexChar(this.char) + 1]
-    : charDimension[getIndexChar(this.char) - 1];
-  if (!this.field[nextLine]) {
-    return
-  }
-  if (verifyBlockState(this.field[nextLine][+this.number], this) === blockState.blank) {
-    moves.push({
-      char: nextLine,
-      number: +this.number
-    });
-  }
-  if (
-    this.isDark &&
-    this.char === 'B' &&
-    verifyBlockState(this.field[charDimension[getIndexChar(this.char) + 2]][+this.number], this) === blockState.blank
-  ) {
-    moves.push({
-      char: charDimension[getIndexChar(this.char) + 2],
-      number: this.number
-    })
-  } else if (
-    !this.isDark &&
-    this.char === 'G' &&
-    verifyBlockState(this.field[charDimension[getIndexChar(this.char) - 2]][+this.number], this) === blockState.blank
-  ) {
-    moves.push({
-      char: charDimension[getIndexChar(this.char) - 2],
-      number: this.number
-    })
-  }
-  if (verifyBlockState(this.field[nextLine][+this.number - 1], this) === blockState.enemy) {
-    moves.push({
-      char: nextLine,
-      number: +this.number - 1
-    })
-  }
-  if (verifyBlockState(this.field[nextLine][+this.number + 1], this) === blockState.enemy) {
-    moves.push({
-      char: nextLine,
-      number: +this.number + 1
-    })
-  }
-  this.$emit('showMoves', {
-    char: this.char,
-    number: this.number,
-    moves,
-    piece: this
-  });
-}
-
-Base.computed.sourceImg = sourceImg;
-
-Base.methods.showMoves = showMoves;
-
-export default Base;

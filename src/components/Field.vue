@@ -31,13 +31,17 @@
 
 <script>
 import Pawn from '@/components/Pieces/Pawn.js';
+import Horse from '@/components/Pieces/Horse.js';
+import Tower from '@/components/Pieces/Tower.js';
 import ActiveBlock from '@/components/ActiveBlock.vue';
 import { numberDimension, charDimension } from '@/constants';
 
 export default {
   components: {
+    ActiveBlock,
+    Horse,
     Pawn,
-    ActiveBlock
+    Tower,
   },
   data: () => ({
     field: [],
@@ -124,6 +128,10 @@ export default {
           component: 'Pawn'
         };
       });
+      this.field['F'][4] = {
+        isDark: true,
+        component: 'Tower'
+      };
     },
   },
 };

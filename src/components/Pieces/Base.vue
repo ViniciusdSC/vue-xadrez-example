@@ -5,11 +5,17 @@
 </template>
 
 <script>
+import { charDimension, blockState } from '@/constants.js';
+import { verifyBlockState, getIndexChar } from '@/helpers/fieldHelpers.js';
+
 export default {
   computed: {
     sourceImg () {
       return null;
-    }
+    },
+    charIndex() {
+      return getIndexChar(this.char);
+    },
   },
   props: {
     isDark: {
@@ -22,12 +28,37 @@ export default {
     active: Boolean,
   },
   methods: {
-    showMoves() {
-      this.$emit('showMoves');
+    getFieldBlock({ char, number }) {
+      return this.field[char][number];
     },
     getBlock() {
       return { char: this.char, number: this.number };
-    }
+    },
+    getMove({ char, number }) {
+      if (
+        !charDimension[(+this.charIndex + char)] ||
+        ((+this.number + number) < 1 && (+this.number + number) > 8)
+      ) {
+        return null;
+      }
+      return {
+        char: charDimension[(+this.charIndex + char)],
+        number: (+this.number + number)
+      }
+    },
+    getMovesArray(...moves) {
+      let arr = [];
+      moves.forEach(move => {
+        if (
+          this.getMove(move) &&
+          (verifyBlockState(this.getBlock(this.getMove(move)), this) !== blockState.ally) &&
+          (verifyBlockState(this.getBlock(this.getMove(move)), this) !== blockState.null)
+        ) {
+          arr.push(this.getMove(move));
+        }
+      });
+      return arr;
+    },
   },
 };
 </script>
