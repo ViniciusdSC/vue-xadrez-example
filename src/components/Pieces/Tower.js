@@ -1,41 +1,10 @@
 import Base from './Base.vue';
-import { blockState, charDimension } from '@/constants.js';
-import { verifyBlockState, getIndexChar } from '@/helpers/fieldHelpers.js';
+import { charDimension } from '@/constants.js';
+import { getIndexChar } from '@/helpers/fieldHelpers.js';
 
 export default {
   extends: Base,
   methods: {
-    getLine({
-      char = this.getBlock().char,
-      number = this.getBlock().number,
-      charLogic = (char) => char,
-      numberLogic = (number) => number,
-      line = [],
-    }) {
-      let move = {
-        char: charLogic(char),
-        number: numberLogic(number)
-      };
-      switch (verifyBlockState(this.getFieldBlock(move), this)) {
-        case blockState.enemy:
-          line.push(move);
-          return line;
-        case blockState.blank:
-          line.push(move);
-          return this.getLine({
-            char: move.char,
-            number: move.number,
-            charLogic,
-            numberLogic,
-            line
-          });
-        case blockState.null:
-        case blockState.ally:
-          return line;
-        default:
-          return null;
-      }
-    },
     showMoves() {
       let moves = [];
       this.getLine({ numberLogic: (number) => (+number - 1) }).forEach(move => {

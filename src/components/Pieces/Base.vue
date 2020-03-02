@@ -28,8 +28,42 @@ export default {
     active: Boolean,
   },
   methods: {
+    getLine({
+      char = this.getBlock().char,
+      number = this.getBlock().number,
+      charLogic = (char) => char,
+      numberLogic = (number) => number,
+      line = [],
+    }) {
+      let move = {
+        char: charLogic(char),
+        number: numberLogic(number)
+      };
+      switch (verifyBlockState(this.getFieldBlock(move), this)) {
+        case blockState.enemy:
+          line.push(move);
+          return line;
+        case blockState.blank:
+          line.push(move);
+          return this.getLine({
+            char: move.char,
+            number: move.number,
+            charLogic,
+            numberLogic,
+            line
+          });
+        case blockState.null:
+        case blockState.ally:
+          return line;
+        default:
+          return null;
+      }
+    },
     getFieldBlock({ char, number }) {
-      return this.field[char][number];
+      if (this.field[char] && this.field[char][number]) {
+        return this.field[char][number];
+      }
+      return null;
     },
     getBlock() {
       return { char: this.char, number: this.number };

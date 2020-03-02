@@ -33,6 +33,9 @@
 import Pawn from '@/components/Pieces/Pawn.js';
 import Horse from '@/components/Pieces/Horse.js';
 import Tower from '@/components/Pieces/Tower.js';
+import Bishop from '@/components/Pieces/Bishop.js';
+import Queen from '@/components/Pieces/Queen.js';
+import King from '@/components/Pieces/King.js';
 import ActiveBlock from '@/components/ActiveBlock.vue';
 import { numberDimension, charDimension } from '@/constants';
 
@@ -42,6 +45,9 @@ export default {
     Horse,
     Pawn,
     Tower,
+    Bishop,
+    Queen,
+    King
   },
   data: () => ({
     field: [],
@@ -118,20 +124,25 @@ export default {
       });
     },
     setUpField() {
-      numberDimension.forEach((number) => {
+      const firstLineOrder = ['Tower', 'Horse', 'Bishop', 'Queen', 'King', 'Bishop', 'Horse', 'Tower'];
+      numberDimension.forEach((number, index) => {
         this.field[charDimension[1]][number] = {
           isDark: true,
           component: 'Pawn'
+        };
+        this.field[charDimension[0]][number] = {
+          isDark: true,
+          component: firstLineOrder[index]
         };
         this.field[charDimension.slice(-2)[0]][number] = {
           isDark: false,
           component: 'Pawn'
         };
+        this.field[charDimension.slice(-1)[0]][number] = {
+          isDark: false,
+          component: firstLineOrder[index]
+        };
       });
-      this.field['F'][4] = {
-        isDark: true,
-        component: 'Tower'
-      };
     },
   },
 };
