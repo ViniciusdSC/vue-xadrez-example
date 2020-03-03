@@ -7,6 +7,7 @@
         class="field-line-block"
       >
         <active-block
+          :ref="`block-${linesIndex}-${blockIndex}`"
           v-if="block.active"
           :char="linesIndex"
           :number="blockIndex"
@@ -14,6 +15,7 @@
           @movePiece="movePiece"
         />
         <component
+          :ref="`block-${linesIndex}-${blockIndex}`"
           v-else-if="block.component"
           :char="linesIndex"
           :number="blockIndex"
@@ -21,9 +23,12 @@
           :is="block.component"
           :field="field"
           :active="block.active"
-          @showMoves="showMoves"
+          @showMoves="handlePieceClick"
         />
-        <span v-else>{{ linesIndex }}{{ blockIndex }}</span>
+        <span
+          :ref="`block-${linesIndex}-${blockIndex}`"
+          v-else
+        >{{ linesIndex }}{{ blockIndex }}</span>
       </div>
     </div>
   </div>
@@ -81,12 +86,22 @@ export default {
         }
         this.setBlock(to, fromBlock);
         this.cleanBlock({ char: from.char, number: from.number });
-        this.$forceUpdate()
-        this.hideMoves()
+        this.$forceUpdate();
+        this.hideMoves();
+        setTimeout(() => {
+          this.$refs[`block-${to.char}-${to.number}`][0].triggerAfterMove()
+        })
+      }
+    },
+    handlePieceClick(event) {
+      this.hideMoves();
+      if (this.clickedPiece !== event.piece) {
+        this.showMoves(event);
+      } else {
+        this.clickedPiece = null;
       }
     },
     showMoves(event) {
-      this.hideMoves();
       this.clickedPiece = event.piece;
       event.moves.forEach((field) => {
         if (this.field[field.char][field.number]) {
@@ -101,7 +116,6 @@ export default {
           this.field[char][number].active = false;
         });
       });
-      this.clickedPiece = null;
       this.$forceUpdate()
     },
     initialize() {

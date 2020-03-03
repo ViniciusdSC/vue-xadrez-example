@@ -5,6 +5,13 @@ import { verifyBlockState } from '@/helpers/fieldHelpers.js';
 export default {
   extends: Base,
   methods: {
+    afterMove() {
+      if (this.isDark && this.getBlock().char === 'H') {
+        console.log('Fim da linha preto');
+      } else if (this.getBlock().char === 'A') {
+        console.log('Fim da linha branco');
+      }
+    },
     showMoves() {
       let moves = [];
       let sign = this.isDark ? 1 : -1;
@@ -12,20 +19,30 @@ export default {
       let moveFrontTwo = this.getMove({ char: (2 * sign), number: 0 });
       let moveFrontOneLeftOne = this.getMove({ char: sign, number: -1 });
       let moveFrontOneRightOne = this.getMove({ char: sign, number: 1 });
-      if (verifyBlockState(this.getFieldBlock(moveFrontOne), this) === blockState.blank) {
+      if (
+        moveFrontOne &&
+        verifyBlockState(this.getFieldBlock(moveFrontOne), this) === blockState.blank
+      ) {
         moves.push(moveFrontOne);
         if (
           ((this.getBlock().char === 'B' && this.isDark) ||
           (this.getBlock().char === 'G' && !this.isDark)) &&
+          moveFrontTwo &&
           verifyBlockState(this.getFieldBlock(moveFrontTwo), this) === blockState.blank
         ) {
           moves.push(moveFrontTwo);
         }
       }
-      if (verifyBlockState(this.getFieldBlock(moveFrontOneLeftOne), this) === blockState.enemy) {
+      if (
+        moveFrontOneLeftOne &&
+        verifyBlockState(this.getFieldBlock(moveFrontOneLeftOne), this) === blockState.enemy
+      ) {
         moves.push(moveFrontOneLeftOne);
       }
-      if (verifyBlockState(this.getFieldBlock(moveFrontOneRightOne), this) === blockState.enemy) {
+      if (
+        moveFrontOneRightOne &&
+        verifyBlockState(this.getFieldBlock(moveFrontOneRightOne), this) === blockState.enemy
+      ) {
         moves.push(moveFrontOneRightOne);
       }
       this.$emit('showMoves', { char: this.char, number: this.number, moves, piece: this })

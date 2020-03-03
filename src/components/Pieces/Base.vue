@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="img-container">
-    <img v-if="!active" @click="showMoves" :src="sourceImg" alt="">
+    <img v-if="!active" @click="baseClickEvent" :src="sourceImg" alt="">
   </div>
 </template>
 
@@ -9,6 +9,9 @@ import { charDimension, blockState } from '@/constants.js';
 import { verifyBlockState, getIndexChar } from '@/helpers/fieldHelpers.js';
 
 export default {
+  data: () => ({
+    isClicked: false
+  }),
   computed: {
     sourceImg () {
       return null;
@@ -28,6 +31,16 @@ export default {
     active: Boolean,
   },
   methods: {
+    triggerAfterMove() {
+      if (this.afterMove) {
+        this.afterMove()
+      }
+    },
+    baseClickEvent() {
+      if (this.showMoves) {
+        this.showMoves()
+      }
+    },
     getLine({
       char = this.getBlock().char,
       number = this.getBlock().number,
