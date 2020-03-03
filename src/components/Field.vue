@@ -24,6 +24,7 @@
           :field="field"
           :active="block.active"
           @showMoves="handlePieceClick"
+          @showChoosePieceModal="showChoosePieceModal"
         />
         <span
           :ref="`block-${linesIndex}-${blockIndex}`"
@@ -31,6 +32,7 @@
         >{{ linesIndex }}{{ blockIndex }}</span>
       </div>
     </div>
+    <choose-piece-modal @updatePiece="updatePiece" ref="choosePieceModal" />
   </div>
 </template>
 
@@ -43,6 +45,7 @@ import Queen from '@/components/Pieces/Queen.js';
 import King from '@/components/Pieces/King.js';
 import ActiveBlock from '@/components/ActiveBlock.vue';
 import { numberDimension, charDimension } from '@/constants';
+import ChoosePieceModal from '@/components/ChoosePieceModal';
 
 export default {
   components: {
@@ -52,7 +55,8 @@ export default {
     Tower,
     Bishop,
     Queen,
-    King
+    King,
+    ChoosePieceModal,
   },
   data: () => ({
     field: [],
@@ -62,6 +66,13 @@ export default {
     this.initialize();
   },
   methods: {
+    showChoosePieceModal(piece) {
+      this.$refs.choosePieceModal.show(piece);
+    },
+    updatePiece(piece) {
+      this.setBlock({ char: piece.char, number: piece.number }, piece);
+      this.$forceUpdate();
+    },
     getBlock({ char, number }) {
       return this.field[char][number];
     },

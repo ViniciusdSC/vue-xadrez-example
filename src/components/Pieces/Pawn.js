@@ -6,11 +6,13 @@ export default {
   extends: Base,
   methods: {
     afterMove() {
-      if (this.isDark && this.getBlock().char === 'H') {
-        console.log('Fim da linha preto');
-      } else if (this.getBlock().char === 'A') {
-        console.log('Fim da linha branco');
+      if (
+        (this.isDark && this.getBlock().char === 'H') ||
+        (!this.isDark && this.getBlock().char === 'A')
+      ) {
+        this.$emit('showChoosePieceModal', this);
       }
+
     },
     showMoves() {
       let moves = [];

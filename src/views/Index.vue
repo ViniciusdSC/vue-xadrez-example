@@ -1,15 +1,15 @@
 <template lang="html">
   <div class="">
-    <field />
+    <game />
   </div>
 </template>
 
 <script>
-import Field from '@/components/Field.vue';
+import Game from '@/components/Game.vue';
 
 export default {
   components: {
-    Field,
+    Game,
   },
 };
 </script>
